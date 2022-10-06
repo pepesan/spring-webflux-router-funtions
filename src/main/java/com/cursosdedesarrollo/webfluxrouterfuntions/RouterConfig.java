@@ -27,6 +27,7 @@ public class RouterConfig {
                 .GET("/router/persons/{input}",personService::findPerson)
                 .POST("/router/persons/save",personService::savePerson)
                 .POST("/router/persons/save2",personService::savePerson2)
+                //.PUT("/router/persons/save/{input}",personService::putPerson)
                 .build();
 
     }

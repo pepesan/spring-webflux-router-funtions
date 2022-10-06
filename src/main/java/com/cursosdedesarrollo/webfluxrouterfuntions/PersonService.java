@@ -67,4 +67,18 @@ public class PersonService {
                 contentType(MediaType.TEXT_EVENT_STREAM)
                 .body(personsStream, Person.class);
     }
+    /*
+    public Mono<ServerResponse> putPerson(ServerRequest request){
+        String personId= request.pathVariable("input");
+        Mono<Person> findedMono = this.personRepository.findById(personId);
+        Mono<Person> savedPerson = findedMono.flatMap(person -> {
+            person.setName();
+            return this.personRepository.save(person);
+        });
+
+        return ServerResponse.ok().body(savedPerson,Person.class);
+    }
+
+     */
+
 }
