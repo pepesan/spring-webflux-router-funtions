@@ -21,11 +21,12 @@ public class RouterConfig {
     @Bean
     public RouterFunction<ServerResponse> routerFunction(){
         // System.out.println("loading router funtion bean");
-        return RouterFunctions.route()
+        return route()
                 .GET("/router/persons",personService::findAll)
                 .GET("/router/persons/stream",personService::getPersons)
                 .GET("/router/persons/{input}",personService::findPerson)
                 .POST("/router/persons/save",personService::savePerson)
+                .POST("/router/persons/save2",personService::savePerson2)
                 .build();
 
     }

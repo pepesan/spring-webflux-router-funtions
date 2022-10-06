@@ -1,7 +1,10 @@
 package com.cursosdedesarrollo.webfluxrouterfuntions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,10 +16,12 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 public class PersonService {
+    Logger logger = LoggerFactory.getLogger(PersonService.class);
     @Autowired
     private ReactivePersonRepository personRepository;
 
     public Mono<ServerResponse> findAll(ServerRequest serverRequest) {
+        // ServerRequest == HTTPRequest
         Flux<Person> customerList = this.personRepository.findAll();
         return ServerResponse.ok().body(customerList,Person.class);
     }
@@ -27,31 +32,26 @@ public class PersonService {
     }
 
     public Mono<ServerResponse> savePerson(ServerRequest request){
+        Mono<Person> personMono = request.bodyToMono(Person.class);
+        Mono<Person> personSaved = personMono
+                .flatMap(personRepository::save);
+        return ServerResponse
+                .status(HttpStatus.CREATED)
+                .body(personSaved, Person.class);
+    }
+    public Mono<ServerResponse> savePerson2(ServerRequest request){
         Mono<PersonDto> personMono = request.bodyToMono(PersonDto.class);
-        Person person = new Person();
-        personMono.map(personDto -> {
+        Mono<Person> savedPerson = personMono.flatMap(personDto -> {
+            Person person = new Person();
             person.setName(personDto.getName());
             person.setLastName(personDto.getLastName());
-            this.personRepository.save(person).map(person1 -> {
-                log.debug("Person: "+ person1);
-                return person1;
-            });
-            return person;
+           return personRepository.save(person);
         });
 
-        return ServerResponse.ok().body(personMono, PersonDto.class);
-        /*
-        return personMono.map(personDto -> {
-            Person person = new Person();
-            person.setLastName(personDto.getLastName());
-            person.setName(person.getName());
-            this.personRepository.save(person);
-            return person;
-        });
-
-         */
+        return ServerResponse
+                .status(HttpStatus.CREATED)
+                .body(savedPerson, Person.class);
     }
-
 
     public Flux<Person> loadAllPersonsStream() {
         long start = System.currentTimeMillis();
